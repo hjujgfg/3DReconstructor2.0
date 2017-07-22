@@ -1,15 +1,19 @@
 package org.hjujgfg;
 
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.RealVector;
 import org.apache.log4j.Logger;
 import org.hjujgfg.exceptions.FileLoadingException;
 import org.hjujgfg.imageprocessing.ImageProcessor;
 import org.hjujgfg.imageprocessing.convolve.Convolutor;
 import org.hjujgfg.io.FileHelper;
+import org.hjujgfg.machinelearning.NeuralNetwork;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 public class Main {
 
@@ -22,7 +26,7 @@ public class Main {
         String text = null;
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         while (!EXIT_TEXT.equals(text)) {
-            System.out.println("Enter text");
+            log.info("Enter text");
             text = reader.readLine();
             parseInputAndRun(text);
         }
@@ -43,7 +47,36 @@ public class Main {
             case "gray":
                 doGray(args);
                 break;
+            case "nn":
+                doNeuralNetwork(args);
+                break;
         }
+    }
+
+    private static void doNeuralNetwork(String... args) {
+        int[] sizes = new int[args.length];
+        int i = 0;
+        for (String s : args) {
+            sizes[i++] = Integer.parseInt(s);
+        }
+        NeuralNetwork nn = new NeuralNetwork(sizes);
+        log.info("Created Net: " + nn.toString());
+        RealVector input = createTestEntry(nn.getInputSize());
+        RealVector expectedOutput = input;
+        log.info(String.format("input: %s\n", input.toString()));
+        nn.forwardPropagate(input);
+        log.info(String.format("Calculated OutPut: %s\n", nn.getResult().toString()));
+        nn.backPropagate(input, expectedOutput);
+        log.info(String.format("Net after backPropagation:\n%s\n", nn.toString()));
+    }
+
+    private static RealVector createTestEntry(int size) {
+        Random r = new Random();
+        double[] res = new double[size];
+        for (int i = 0; i < size; i ++) {
+            res[i] = r.nextDouble();
+        }
+        return new ArrayRealVector(res);
     }
 
 
