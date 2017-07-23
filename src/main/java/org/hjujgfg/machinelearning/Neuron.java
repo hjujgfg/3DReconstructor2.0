@@ -44,7 +44,10 @@ public class Neuron {
         delta = error * derivative(output);
     }
 
-
+    public void updateWeights(RealVector prevOutputs) {
+        RealVector scaled = prevOutputs.mapMultiply(NeuralNetwork.LEARING_RATE * delta);
+        weightsS = weightsS.add(scaled);
+    }
 
     public double getWight(int index) {
         return weightsS.getEntry(index);

@@ -13,6 +13,8 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Main {
@@ -21,6 +23,14 @@ public class Main {
     private final static Logger log = Logger.getLogger(Main.class);
 
     private final static String EXIT_TEXT = "exit";
+
+    private final static double min = 0;
+
+    private final static double max = 200;
+
+    private static int testSetSize = 100;
+
+    private static NeuralNetwork nn;
 
     public static void main(String[] args) throws IOException, FileLoadingException {
         String text = null;
@@ -50,7 +60,37 @@ public class Main {
             case "nn":
                 doNeuralNetwork(args);
                 break;
+            case "testnn":
+                doTestNN(args);
+                break;
+            case "getNNInfo":
+                doGetNNInfo();
+                break;
+            case "setEpochs":
+                NeuralNetwork.EPOCH_NUMBER = Integer.parseInt(args[0]);
+                break;
+            case "setLearningRate":
+                NeuralNetwork.LEARING_RATE = Double.parseDouble(args[0]);
+                break;
+            case "setTrainingSize":
+                testSetSize = Integer.parseInt(args[0]);
+                break;
         }
+    }
+
+    private static void doGetNNInfo() {
+        log.info("\nPrinting nn info:\n");
+        log.info(String.format("\nInput size: %d\nOutput size: %d\nNumber of layers: %d",
+                nn.getInputSize(), nn.getOutputSize(), nn.getNumberOfLayers()));
+    }
+
+    private static void doTestNN(String... args) {
+        double [] test = new double[args.length];
+        for (int i = 0; i < test.length; i ++) {
+            test[i] = Double.parseDouble(args[i]);
+        }
+        nn.forwardPropagate(new ArrayRealVector(test));
+        log.info(String.format("Calculated result: %s\n", nn.getResult().toString()));
     }
 
     private static void doNeuralNetwork(String... args) {
@@ -59,22 +99,35 @@ public class Main {
         for (String s : args) {
             sizes[i++] = Integer.parseInt(s);
         }
-        NeuralNetwork nn = new NeuralNetwork(sizes);
+        nn = new NeuralNetwork(sizes);
         log.info("Created Net: " + nn.toString());
-        RealVector input = createTestEntry(nn.getInputSize());
-        RealVector expectedOutput = input;
+        List<RealVector> inputs = createEntries(testSetSize, nn.getInputSize());
+        nn.trainNetwork(inputs, inputs);
+
+        /*RealVector expectedOutput = input;
         log.info(String.format("input: %s\n", input.toString()));
         nn.forwardPropagate(input);
         log.info(String.format("Calculated OutPut: %s\n", nn.getResult().toString()));
         nn.backPropagate(input, expectedOutput);
-        log.info(String.format("Net after backPropagation:\n%s\n", nn.toString()));
+        log.info(String.format("Net after backPropagation:\n%s\n", nn.toString()));*/
+    }
+
+    private static List<RealVector> createEntries(int size, int entrySize) {
+        List<RealVector> res = new ArrayList<>(size);
+        log.info("creating input of size " + size + "\n");
+        for (int i = 0; i < size; i ++) {
+            RealVector rv = createTestEntry(entrySize);
+            res.add(rv);
+            log.info(String.format("Output #%d: %s\n", i, rv.toString()));
+        }
+        return res;
     }
 
     private static RealVector createTestEntry(int size) {
         Random r = new Random();
         double[] res = new double[size];
         for (int i = 0; i < size; i ++) {
-            res[i] = r.nextDouble();
+            res[i] = min + (max - min) * r.nextDouble();
         }
         return new ArrayRealVector(res);
     }

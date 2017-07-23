@@ -21,6 +21,9 @@ public class NeuralNetwork {
     int inputSize;
     List<Layer> nn;
 
+    public static double LEARING_RATE = 0.5d;
+    public static int EPOCH_NUMBER = 100;
+
     /**
      * Creates and initializes neural network with random values
      * @param layersSizes - array of sizes, where 0th element represents dimensionality of imput vector,
@@ -39,21 +42,6 @@ public class NeuralNetwork {
         }
     }
 
-    /*public NeuralNetwork (int inputDimensions, int numberOfHiddenLayers, int unitsInHiddenLayer) {
-
-        Layer output = new Layer(inputDimensions, unitsInHiddenLayer + 1);
-
-        nn = new ArrayList<>(numberOfHiddenLayers + 1);
-        for (int i = 0; i < numberOfHiddenLayers; i ++ ) {
-            if (i == 0) {
-                nn.add(new Layer(unitsInHiddenLayer, inputDimensions));
-            } else {
-                nn.add(new Layer(unitsInHiddenLayer, unitsInHiddenLayer + 1));
-            }
-        }
-        nn.add(output);
-    }*/
-
     public RealVector forwardPropagate(RealVector input) {
         RealVector inp = input.copy();
         for (Layer layer : nn) {
@@ -69,14 +57,37 @@ public class NeuralNetwork {
         for (int i = nn.size() - 1; i >= 0; i--) {
             Layer l = nn.get(i);
             RealVector errors;
-            log.info("Back propagating layer " + i);
+            //log.info("Back propagating layer " + i);
             if (i == nn.size() - 1) {
                 errors = expectedOutput.subtract(l.getOutputs());
             } else {
                 errors = l.calcErrors(nn.get(i + 1));
             }
             l.setDeltas(errors);
-            log.info(String.format("Layer #%d: \n%s\n", i, l.toString()));
+            //log.info(String.format("Layer #%d: \n%s\n", i, l.toString()));
+        }
+    }
+
+    private void updateWeights(RealVector nnInput) {
+        nn.get(0).updateWeights(nnInput);
+        for (int i = 1; i < nn.size(); i ++) {
+            nn.get(i).updateWeights(nn.get(i - 1).getOutputs());
+        }
+    }
+
+    public void trainNetwork(List<RealVector> inputData, List<RealVector> realOutputs) {
+        log.info(String.format("Training network on %d expamples, in %d epochs", inputData.size(), EPOCH_NUMBER));
+        for (int i = 0; i < EPOCH_NUMBER; i ++) {
+            double sumError = 0;
+            for (int j = 0; j < inputData.size(); j ++) {
+                RealVector currentInput = inputData.get(j);
+                RealVector output = forwardPropagate(currentInput);
+                RealVector expected = realOutputs.get(j);
+                sumError += output.getDistance(expected);
+                backPropagate(currentInput, expected);
+                updateWeights(currentInput);
+            }
+            log.info(String.format("Epoch: %d, summError: %f", i, sumError));
         }
     }
 
@@ -86,6 +97,10 @@ public class NeuralNetwork {
 
     public int getOutputSize() {
         return nn.get(nn.size() - 1).size();
+    }
+
+    public int getNumberOfLayers() {
+        return nn.size();
     }
 
     public RealVector getResult() {

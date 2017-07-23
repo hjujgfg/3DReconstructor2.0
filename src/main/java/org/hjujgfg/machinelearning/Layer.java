@@ -59,6 +59,12 @@ public class Layer {
         }
     }
 
+    public void updateWeights(RealVector input) {
+        for (Neuron n : neurons) {
+            n.updateWeights(input);
+        }
+    }
+
     public int size() {
         if (normalizer == null) {
             return neurons.size();
