@@ -76,7 +76,7 @@ public class NeuralNetwork {
     }
 
     public void trainNetwork(List<RealVector> inputData, List<RealVector> realOutputs) {
-        log.info(String.format("Training network on %d expamples, in %d epochs", inputData.size(), EPOCH_NUMBER));
+        log.info(String.format("Training network on %d examples, in %d epochs", inputData.size(), EPOCH_NUMBER));
         for (int i = 0; i < EPOCH_NUMBER; i ++) {
             double sumError = 0;
             for (int j = 0; j < inputData.size(); j ++) {
