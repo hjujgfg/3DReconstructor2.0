@@ -21,9 +21,10 @@ public class NeuralNetwork {
     int inputSize;
     List<Layer> nn;
 
-    public static double LEARING_RATE = 0.5d;
-    public static int EPOCH_NUMBER = 100;
+    public static double LEARNING_RATE = 0.5d;
+    public static int EPOCH_NUMBER = 1000;
 
+    public static double LEARNING_RATE_CHANGEABLE = LEARNING_RATE;
     /**
      * Creates and initializes neural network with random values
      * @param layersSizes - array of sizes, where 0th element represents dimensionality of imput vector,
@@ -43,14 +44,30 @@ public class NeuralNetwork {
     }
 
     public RealVector forwardPropagate(RealVector input) {
-        RealVector inp = input.copy();
+        RealVector inp = scaleInput(input);
         for (Layer layer : nn) {
             for (Neuron neuron : layer.getNeurons()) {
                 neuron.activate(inp);
             }
             inp = layer.getOutputs();
         }
-        return nn.get(nn.size() - 1).getOutputs();
+        return unscaleOutput(nn.get(nn.size() - 1).getOutputs());
+    }
+
+    private RealVector scaleInput(RealVector input) {
+        double min = input.getMinValue();
+        RealVector tmp = input.mapSubtract(min);
+        double max = tmp.getMaxValue();
+        tmp.mapMultiplyToSelf(1/max);
+        return tmp;
+    }
+
+    private RealVector unscaleOutput(RealVector input) {
+        double min = input.getMinValue();
+        RealVector tmp = input.mapSubtract(min);
+        double max = tmp.getMaxValue();
+        tmp.mapMultiplyToSelf(max);
+        return tmp;
     }
 
     public void backPropagate(RealVector input, RealVector expectedOutput) {
@@ -77,6 +94,7 @@ public class NeuralNetwork {
 
     public void trainNetwork(List<RealVector> inputData, List<RealVector> realOutputs) {
         log.info(String.format("Training network on %d examples, in %d epochs", inputData.size(), EPOCH_NUMBER));
+        LEARNING_RATE_CHANGEABLE = LEARNING_RATE;
         for (int i = 0; i < EPOCH_NUMBER; i ++) {
             double sumError = 0;
             for (int j = 0; j < inputData.size(); j ++) {
@@ -87,7 +105,10 @@ public class NeuralNetwork {
                 backPropagate(currentInput, expected);
                 updateWeights(currentInput);
             }
-            log.info(String.format("Epoch: %d, summError: %f", i, sumError));
+            if (i % 200 == 0 && LEARNING_RATE_CHANGEABLE >= 0.3) {
+                LEARNING_RATE_CHANGEABLE = LEARNING_RATE_CHANGEABLE * 0.9;
+            }
+            log.info(String.format("Epoch: %d, summError: %f, learningRate: %f", i, sumError, LEARNING_RATE_CHANGEABLE));
         }
     }
 

@@ -45,7 +45,7 @@ public class Neuron {
     }
 
     public void updateWeights(RealVector prevOutputs) {
-        RealVector scaled = prevOutputs.mapMultiply(NeuralNetwork.LEARING_RATE * delta);
+        RealVector scaled = prevOutputs.mapMultiply(NeuralNetwork.LEARNING_RATE_CHANGEABLE * delta);
         weightsS = weightsS.add(scaled);
     }
 

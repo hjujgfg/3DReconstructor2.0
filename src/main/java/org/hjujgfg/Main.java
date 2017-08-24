@@ -59,7 +59,7 @@ public class Main {
 
     private static double max = 1;
 
-    private static int testSetSize = 100;
+    private static int testSetSize = 500;
 
     private static NeuralNetwork nn;
 
@@ -102,7 +102,7 @@ public class Main {
                 NeuralNetwork.EPOCH_NUMBER = Integer.parseInt(args[0]);
                 break;
             case SET_LEARNING_RATE:
-                NeuralNetwork.LEARING_RATE = Double.parseDouble(args[0]);
+                NeuralNetwork.LEARNING_RATE = Double.parseDouble(args[0]);
                 break;
             case SET_TRAINING_SIZE:
                 testSetSize = Integer.parseInt(args[0]);
@@ -174,7 +174,7 @@ public class Main {
                     nn.getInputSize(), nn.getOutputSize(), nn.getNumberOfLayers()));
         }
         log.info(String.format("\nLearning rate: %f\nTrain set size: %d\nNumber of epochs: %d\n",
-                NeuralNetwork.LEARING_RATE,
+                NeuralNetwork.LEARNING_RATE,
                 testSetSize,
                 NeuralNetwork.EPOCH_NUMBER));
     }
