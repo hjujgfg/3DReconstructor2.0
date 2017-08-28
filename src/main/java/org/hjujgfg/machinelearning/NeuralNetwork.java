@@ -106,7 +106,7 @@ public class NeuralNetwork {
                 updateWeights(currentInput);
             }
             if (i % 200 == 0 && LEARNING_RATE_CHANGEABLE >= 0.3) {
-                LEARNING_RATE_CHANGEABLE = LEARNING_RATE_CHANGEABLE * 0.9;
+                LEARNING_RATE_CHANGEABLE -= 0.05;
             }
             log.info(String.format("Epoch: %d, summError: %f, learningRate: %f", i, sumError, LEARNING_RATE_CHANGEABLE));
         }

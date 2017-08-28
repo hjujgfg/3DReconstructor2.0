@@ -207,6 +207,18 @@ public class Main {
         log.info(String.format("Net after backPropagation:\n%s\n", nn.toString()));*/
     }
 
+    private static void doTrainSin(String... args) {
+        int[] sizes = new int[args.length];
+        int i = 0;
+        for (String s : args) {
+            sizes[i++] = Integer.parseInt(s);
+        }
+        nn = new NeuralNetwork(sizes);
+        log.info("Created Net: " + nn.toString());
+        List<RealVector> inputs = getTrainingSet(testSetSize);
+        nn.trainNetwork(inputs, inputs);
+    }
+
     private static void doLearnMore() {
         List<RealVector> inputs = createEntries(testSetSize, nn.getInputSize());
         nn.trainNetwork(inputs, inputs);
@@ -222,6 +234,19 @@ public class Main {
         }
         return res;
     }
+
+    private static List<InputOutput> getTrainingSet(int size) {
+        double step = 0.2;
+        List<InputOutput> io = new ArrayList<>();
+        for (double d = - size / 2; d < size / 2; d += step) {
+            InputOutput tmp = new InputOutput();
+            tmp.input = d;
+            tmp.output = Math.sin(d);
+            io.add(tmp);
+        }
+        return io;
+    }
+
 
     private static RealVector createTestEntry(int size) {
         Random r = new Random();
@@ -256,5 +281,10 @@ public class Main {
         } catch (FileLoadingException ex) {
             log.error("Error loadgin file", ex);
         }
+    }
+
+    static class InputOutput {
+        double input;
+        double output;
     }
 }
