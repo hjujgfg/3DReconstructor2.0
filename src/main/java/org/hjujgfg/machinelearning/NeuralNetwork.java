@@ -55,17 +55,29 @@ public class NeuralNetwork {
     }
 
     private RealVector scaleInput(RealVector input) {
+        if (input.getDimension() == 1) {
+            return input;
+        }
         double min = input.getMinValue();
         RealVector tmp = input.mapSubtract(min);
         double max = tmp.getMaxValue();
+        if (max == min) {
+            return input;
+        }
         tmp.mapMultiplyToSelf(1/max);
         return tmp;
     }
 
     private RealVector unscaleOutput(RealVector input) {
+        if (input.getDimension() == 1) {
+            return input;
+        }
         double min = input.getMinValue();
         RealVector tmp = input.mapSubtract(min);
         double max = tmp.getMaxValue();
+        if (max == min) {
+            return input;
+        }
         tmp.mapMultiplyToSelf(max);
         return tmp;
     }

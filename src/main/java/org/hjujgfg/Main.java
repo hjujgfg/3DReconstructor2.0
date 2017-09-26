@@ -34,6 +34,7 @@ public class Main {
         LEARN_MORE("learnmore", "runs training on a new set one more time"),
         READ_SOMETHING("tryread", "tries somthing"),
         NN_FROM_SOMETHING("nn_img", "runs nn on images from dataset"),
+        TRAIN_SIN("sin", "trains net to learn sin function"),
         HELP("help", "Show help");
 
         private String cmd;
@@ -59,7 +60,7 @@ public class Main {
 
     private static double max = 1;
 
-    private static int testSetSize = 500;
+    private static int testSetSize = 180;
 
     private static NeuralNetwork nn;
 
@@ -121,6 +122,9 @@ public class Main {
                 break;
             case NN_FROM_SOMETHING:
                 doNNFromSomething(args);
+                break;
+            case TRAIN_SIN:
+                doTrainSin(args);
                 break;
             default:
                 log.error("Unknown command, please retype");
@@ -215,8 +219,14 @@ public class Main {
         }
         nn = new NeuralNetwork(sizes);
         log.info("Created Net: " + nn.toString());
-        List<RealVector> inputs = getTrainingSet(testSetSize);
-        nn.trainNetwork(inputs, inputs);
+        List<InputOutput> trainingSet = getTrainingSet(testSetSize);
+        List<RealVector> inputs = new ArrayList<>(trainingSet.size());
+        List<RealVector> outputs = new ArrayList<>(trainingSet.size());
+        trainingSet.forEach(ts -> {
+            inputs.add(ts.input);
+            outputs.add(ts.output);
+        });
+        nn.trainNetwork(inputs, outputs);
     }
 
     private static void doLearnMore() {
@@ -240,8 +250,8 @@ public class Main {
         List<InputOutput> io = new ArrayList<>();
         for (double d = - size / 2; d < size / 2; d += step) {
             InputOutput tmp = new InputOutput();
-            tmp.input = d;
-            tmp.output = Math.sin(d);
+            tmp.setInput(d);
+            tmp.setOutput(Math.sin(d));
             io.add(tmp);
         }
         return io;
@@ -283,8 +293,29 @@ public class Main {
         }
     }
 
+
+    private double changeScale(double value, double minOld, double maxOld, double minNew, double maxNew) {
+        return ( (value - minOld) / ( (maxOld - minOld) / (maxNew - minNew) ) ) + minNew;
+    }
+
     static class InputOutput {
-        double input;
-        double output;
+        RealVector input;
+        RealVector output;
+
+        public void setInput(RealVector input) {
+            this.input = input;
+        }
+
+        public void setOutput(RealVector output) {
+            this.output = output;
+        }
+
+        public void setInput(double d) {
+            this.input = new ArrayRealVector(new double[]{d});
+        }
+
+        public void setOutput(double d) {
+            this.output = new ArrayRealVector(new double[]{d});
+        }
     }
 }
