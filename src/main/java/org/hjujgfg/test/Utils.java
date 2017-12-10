@@ -54,14 +54,29 @@ public class Utils {
     }
 
 
-    public static List<TrainingExample> createNormalizedSinTrainingSet(int size) {
+    public static List<TrainingExample> createNormalizedSinTrainingSet(int size, int step) {
         List<TrainingExample> examples = new ArrayList<>(size);
-        int step = 1;
         for (int i = 0; i < size * step; i += step) {
-            RealVector inp = new ArrayRealVector(new double[]{i / 360});
+            RealVector inp = new ArrayRealVector(new double[]{i / 360.});
             //double sin = scale(Math.sin(i * Math.PI / 180), -1, 1, 0, 1);
             double sin = Math.sin(i * Math.PI / 180);
             RealVector out = new ArrayRealVector(new double[]{sin});
+            examples.add(new TrainingExample(inp, out));
+        }
+        return examples;
+    }
+
+    public static List<TrainingExample> createNormalizedLineTrainingSet(int size, int step) {
+        List<TrainingExample> examples = new ArrayList<>(size);
+        double k = 7.;
+        double b = -12.;
+        double max = k * size * step + b;
+        for (int i = 0; i < size * step; i += step) {
+            RealVector inp = new ArrayRealVector(new double[]{(double)i / ((double)size * step)});
+            //double sin = scale(Math.sin(i * Math.PI / 180), -1, 1, 0, 1);
+            double value = i * k + b;
+            value = scale(value, 0, max, 0, 1);
+            RealVector out = new ArrayRealVector(new double[]{value});
             examples.add(new TrainingExample(inp, out));
         }
         return examples;

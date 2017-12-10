@@ -20,7 +20,7 @@ public class Network {
         layers = new ArrayList<>();
         for (int i = 1; i < args.length; i ++) {
             int dim = Integer.parseInt(args[i]);
-            Layer layer = new Layer(dim, prev, ActivationFunction.TAHN);
+            Layer layer = new Layer(dim, prev, ActivationFunction.SIGMOID);
             layers.add(layer);
             prev = dim;
         }
@@ -67,6 +67,8 @@ public class Network {
                 back(example.expectedOutput);
                 double rootDistance = calculated.getDistance(example.expectedOutput);
                 summError += 0.5 * rootDistance * rootDistance;
+
+                layers.forEach(l -> l.updateWeights(alpha, lambda, 1));
             }
             double weightsSum = calcWeightsSum();
             double error =  1 / trainSet.size() * summError + lambda * 0.5 * weightsSum;
@@ -77,7 +79,7 @@ public class Network {
                 break;
             }
             prevError = error;
-            layers.forEach(l -> l.updateWeights(alpha, lambda, trainSet.size()));
+            //layers.forEach(l -> l.updateWeights(alpha, lambda, trainSet.size()));
         }
     }
 
