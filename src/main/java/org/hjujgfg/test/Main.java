@@ -9,11 +9,22 @@ import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunctionGradient;
 import org.apache.commons.math3.optim.nonlinear.scalar.gradient.NonLinearConjugateGradientOptimizer;
 import org.apache.log4j.Logger;
+import org.hjujgfg.test.representation.PlotDisplay;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtils;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.XYDataItem;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -22,13 +33,28 @@ public class Main {
 
     public static void main(String... args) {
         Network net = new Network();
-        net.init(new String[] {"1"});
-        List<TrainingExample> examplesSorted = Utils.createNormalizedSinTrainingSet(9, 10);
-        List<TrainingExample> examplesShuffled = Utils.createNormalizedSinTrainingSet(20, 10);
+        net.init(new String[] {"1", "100", "1"});
+        List<TrainingExample> examplesSorted = Utils.createNormalizedSinTrainingSet(360, 1);
+        List<TrainingExample> examplesShuffled = Utils.createNormalizedSinTrainingSet(360, 1);
         Collections.shuffle(examplesShuffled);
-        net.train(15000, 0.003, 0.0000000003, examplesSorted);
-        log.info("Testing!");
-        test(net, examplesSorted);
+
+        XYSeries truth = new XYSeries("Ground truth", true, false);
+        XYSeries netResult = new XYSeries("Net results", true, false);
+
+        Thread trainingThread = new Thread(() -> {
+            net.train(15000, 0.00003, 0.3, examplesShuffled,
+                    truth::addOrUpdate, netResult::addOrUpdate,
+                    () -> {
+                        log.info("Printing netResult series: ");
+                        log.info(netResult.getItems().stream().map(Object::toString).collect(Collectors.joining(", ")));
+                        log.info("Printing net: ");
+                        log.info(net.toString());
+                    }
+            );
+        });
+        PlotDisplay.startViewInSeparateThread(truth, netResult, trainingThread::start);
+        //log.info("Testing!");
+        //test(net, examplesSorted);
     }
 
 
@@ -60,8 +86,32 @@ public class Main {
             expected.add(example.expectedOutput.getEntry(0));
             netOuts.add(netOutput.getEntry(0));
         }
-        Plotter.buildGraphs(examples.size(), expected, netOuts);
+        //Plotter.buildGraphs(examples.size(), expected, netOuts);
+        //createAndSaveChart(expected, netOuts);
         //log.info("Net: \n" + net.toString());
+    }
+
+
+    private static void createAndSaveChart(List<Double> expected, List<Double> netRes) {
+        XYSeries truth = new XYSeries("Ground truth");
+        XYSeries netResult = new XYSeries("Net Results");
+        for (int i = 0; i < expected.size(); i ++) {
+            truth.add(i, expected.get(i));
+            netResult.add(i, netRes.get(i));
+        }
+        XYSeriesCollection xyDataset = new XYSeriesCollection(truth);
+        xyDataset.addSeries(netResult);
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "ShitFuckGraph",
+                "input",
+                "output",
+                xyDataset
+        );
+        try {
+            ChartUtils.saveChartAsJPEG(new File("chart.jpg"), chart, 500, 300);
+        } catch (IOException e) {
+            log.error("error saving chart", e);
+        }
     }
 
     private static void testSingle(Map<RealVector,RealVector> set) {

@@ -5,24 +5,32 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Function;
 
 public class Utils {
 
     public static void randomizeMatrix(RealMatrix matrix) {
+        double rangeMin = 0.0001;
+        double rangeMax = 0.001;
         Random r = new Random();
         for (int i = 0; i < matrix.getRowDimension(); i ++) {
             for (int j = 0; j < matrix.getColumnDimension(); j ++) {
-                matrix.setEntry(i, j, r.nextDouble());
+                double randomValue = rangeMin + (rangeMax - rangeMin) * r.nextDouble();
+                matrix.setEntry(i, j, randomValue);
             }
         }
     }
 
     public static void randomizeVector(RealVector r) {
+        double rangeMin = 0.0001;
+        double rangeMax = 0.001;
         Random rand = new Random();
         for (int i = 0; i < r.getDimension(); i ++) {
-            r.setEntry(i, rand.nextDouble());
+            double randomValue = rangeMin + (rangeMax - rangeMin) * rand.nextDouble();
+            r.setEntry(i, randomValue);
         }
     }
 
@@ -57,10 +65,23 @@ public class Utils {
     public static List<TrainingExample> createNormalizedSinTrainingSet(int size, int step) {
         List<TrainingExample> examples = new ArrayList<>(size);
         for (int i = 0; i < size * step; i += step) {
+            RealVector inp = new ArrayRealVector(new double[]{round(i / 360., 5)});
+            double sin = scale(Math.sin(i * Math.PI / 180) * Math.cos(i * Math.PI / 180), -1, 1, 0, 1);
+            //double sin = Math.sin(i * Math.PI / 180);
+            RealVector out = new ArrayRealVector(new double[]{sin});
+            examples.add(new TrainingExample(inp, out));
+        }
+        return examples;
+    }
+
+    public static List<TrainingExample> createRandomSet(int size, int bound, int seed) {
+        List<TrainingExample> examples = new ArrayList<>(size);
+        for (int i = 0; i < size; i ++) {
             RealVector inp = new ArrayRealVector(new double[]{i / 360.});
             //double sin = scale(Math.sin(i * Math.PI / 180), -1, 1, 0, 1);
-            double sin = Math.sin(i * Math.PI / 180);
-            RealVector out = new ArrayRealVector(new double[]{sin});
+            Random r = new Random(seed);
+            double randValue = r.nextInt();
+            RealVector out = new ArrayRealVector(new double[]{randValue});
             examples.add(new TrainingExample(inp, out));
         }
         return examples;
@@ -84,6 +105,20 @@ public class Utils {
 
     private static double scale(double value, double oldMin, double oldMax, double newMin, double newMax) {
         return (((newMax - newMin) * (value - oldMin)) / (oldMax - oldMin) ) + newMin;
+    }
+
+    /**
+     * Rounding method from stackoverflow @see https://stackoverflow.com/questions/2808535/round-a-double-to-2-decimal-places
+     * @param value to round
+     * @param places - decimal digits
+     * @return rounded double
+     */
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 
 }

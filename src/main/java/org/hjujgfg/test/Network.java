@@ -5,6 +5,8 @@ import org.apache.commons.math3.linear.RealVector;
 import org.apache.log4j.Logger;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 
 public class Network {
@@ -58,7 +60,10 @@ public class Network {
         }
     }
 
-    public void train(int epochs, double alpha, double lambda, List<TrainingExample> trainSet) {
+    public void train(int epochs, double alpha, double lambda, List<TrainingExample> trainSet,
+                      BiConsumer<Double, Double> truthUpdater,
+                      BiConsumer<Double, Double> resUpdater,
+                      Runnable finalizer) {
         double prevError = Double.MAX_VALUE;
         for (int i = 0; i < epochs; i ++) {
             double summError = 0;
@@ -69,18 +74,23 @@ public class Network {
                 summError += 0.5 * rootDistance * rootDistance;
 
                 layers.forEach(l -> l.updateWeights(alpha, lambda, 1));
+                if (i == 0) {
+                    truthUpdater.accept(example.input.getEntry(0), example.expectedOutput.getEntry(0));
+                }
+                resUpdater.accept(example.input.getEntry(0), calculated.getEntry(0));
             }
             double weightsSum = calcWeightsSum();
             double error =  1 / trainSet.size() * summError + lambda * 0.5 * weightsSum;
             log.info(String.format("Epoch #%d: Error = %f, errorChange = %f, alpha = %f, lambda = %f, weightsSum = %f", i, error, error - prevError, alpha, lambda, weightsSum));
             if (error > prevError) {
-                log.info("Shit happened, current error is higher that previous one, stopping without weights update");
-                toString();
-                break;
+                //log.info("Shit happened, current error is higher that previous one, stopping without weights update");
+                //toString();
+                //break;
             }
             prevError = error;
             //layers.forEach(l -> l.updateWeights(alpha, lambda, trainSet.size()));
         }
+        finalizer.run();
     }
 
 
