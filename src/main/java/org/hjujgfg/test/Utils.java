@@ -1,14 +1,13 @@
 package org.hjujgfg.test;
 
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.hjujgfg.test.to.TrainingExample;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.function.Function;
 
 public class Utils {
 

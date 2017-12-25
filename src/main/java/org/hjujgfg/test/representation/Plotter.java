@@ -1,4 +1,4 @@
-package org.hjujgfg.test;
+package org.hjujgfg.test.representation;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

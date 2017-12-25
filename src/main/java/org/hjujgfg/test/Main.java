@@ -1,20 +1,13 @@
 package org.hjujgfg.test;
 
 import org.apache.commons.math3.linear.RealVector;
-import org.apache.commons.math3.optim.ConvergenceChecker;
-import org.apache.commons.math3.optim.OptimizationData;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.nonlinear.scalar.GradientMultivariateOptimizer;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunctionGradient;
-import org.apache.commons.math3.optim.nonlinear.scalar.gradient.NonLinearConjugateGradientOptimizer;
 import org.apache.log4j.Logger;
+import org.hjujgfg.test.net_core.Network;
 import org.hjujgfg.test.representation.PlotDisplay;
+import org.hjujgfg.test.to.TrainingExample;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
-import org.jfree.data.xy.XYDataItem;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 

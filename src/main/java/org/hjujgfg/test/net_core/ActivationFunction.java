@@ -1,6 +1,7 @@
-package org.hjujgfg.test;
+package org.hjujgfg.test.net_core;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.hjujgfg.test.Utils;
 
 public enum ActivationFunction {
 

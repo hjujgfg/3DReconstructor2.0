@@ -1,12 +1,12 @@
-package org.hjujgfg.test;
+package org.hjujgfg.test.net_core;
 
 
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.log4j.Logger;
+import org.hjujgfg.test.to.TrainingExample;
 
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 
 public class Network {
