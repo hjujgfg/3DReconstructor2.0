@@ -13,13 +13,28 @@ public class Utils {
 
     public static void randomizeMatrix(RealMatrix matrix) {
         double rangeMin = 0.0001;
-        double rangeMax = 0.001;
+        double rangeMax = 0.1;
         Random r = new Random();
+        double previous = r.nextDouble();
         for (int i = 0; i < matrix.getRowDimension(); i ++) {
             for (int j = 0; j < matrix.getColumnDimension(); j ++) {
                 double randomValue = rangeMin + (rangeMax - rangeMin) * r.nextDouble();
-                matrix.setEntry(i, j, randomValue);
+                matrix.setEntry(i, j, randomValue * previous);
+                previous = randomValue;
             }
+        }
+    }
+
+    public static void addNoiseToMatrix(RealMatrix matrix) {
+        double rangeMin = -0.0001;
+        double rangeMax = 0.0001;
+        Random r = new Random();
+        int column = r.nextInt(matrix.getColumnDimension());
+        for (int i = 0; i < matrix.getRowDimension(); i ++) {
+            //for (int j = 0; j < matrix.getColumnDimension(); j ++) {
+            double randomValue = rangeMin + (rangeMax - rangeMin) * r.nextDouble();
+            matrix.setEntry(i, column, matrix.getEntry(i, column) + randomValue);
+            //}
         }
     }
 
@@ -65,9 +80,11 @@ public class Utils {
         List<TrainingExample> examples = new ArrayList<>(size);
         for (int i = 0; i < size * step; i += step) {
             RealVector inp = new ArrayRealVector(new double[]{round(i / 360., 5)});
-            double sin = scale(Math.sin(i * Math.PI / 180) * Math.cos(i * Math.PI / 180), -1, 1, 0, 1);
+            double sin = Math.sin(i * Math.PI / 180);
+            double doubleSin = Math.sin(2 * i * Math.PI / 180);
+            double outValue = scale(sin * sin *  doubleSin, -1, 1, 0, 1);
             //double sin = Math.sin(i * Math.PI / 180);
-            RealVector out = new ArrayRealVector(new double[]{sin});
+            RealVector out = new ArrayRealVector(new double[]{outValue});
             examples.add(new TrainingExample(inp, out));
         }
         return examples;

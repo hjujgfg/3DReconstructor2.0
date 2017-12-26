@@ -22,10 +22,12 @@ public class PlotPanel extends JPanel {
 
     private JFreeChart chart;
 
-    public PlotPanel(XYSeries truth, XYSeries netResult) {
+    public PlotPanel(XYSeries first, XYSeries... series) {
         setMinimumSize(new Dimension(600, 400));
-        XYSeriesCollection xyDataset = new XYSeriesCollection(truth);
-        xyDataset.addSeries(netResult);
+        XYSeriesCollection xyDataset = new XYSeriesCollection(first);
+        for (XYSeries s : series) {
+            xyDataset.addSeries(s);
+        }
         chart = ChartFactory.createXYLineChart(
                 "ShitFuckGraph",
                 "input",

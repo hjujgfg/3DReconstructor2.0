@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -26,13 +27,14 @@ public class Main {
 
     public static void main(String... args) {
         Network net = new Network();
-        net.init(new String[] {"1", "100", "1"});
-        List<TrainingExample> examplesSorted = Utils.createNormalizedSinTrainingSet(360, 1);
-        List<TrainingExample> examplesShuffled = Utils.createNormalizedSinTrainingSet(360, 1);
+        net.init(new String[] {"1", "50", "1"});
+        List<TrainingExample> examplesSorted = Utils.createNormalizedSinTrainingSet(270, 1);
+        List<TrainingExample> examplesShuffled = Utils.createNormalizedSinTrainingSet(90, 3);
         Collections.shuffle(examplesShuffled);
 
         XYSeries truth = new XYSeries("Ground truth", true, false);
         XYSeries netResult = new XYSeries("Net results", true, false);
+        XYSeries testingResults = new XYSeries("Testing results", true, false);
 
         Thread trainingThread = new Thread(() -> {
             net.train(15000, 0.00003, 0.3, examplesShuffled,
@@ -44,8 +46,9 @@ public class Main {
                         log.info(net.toString());
                     }
             );
+            test(net, examplesSorted, testingResults::addOrUpdate);
         });
-        PlotDisplay.startViewInSeparateThread(truth, netResult, trainingThread::start);
+        PlotDisplay.startViewInSeparateThread(trainingThread::start, truth, netResult, testingResults);
         //log.info("Testing!");
         //test(net, examplesSorted);
     }
@@ -60,7 +63,7 @@ public class Main {
         optimizer.optimize(new ObjectiveFunction(v -> ));
     }*/
 
-    private static void test(Network net, List<TrainingExample> examples) {
+    private static void test(Network net, List<TrainingExample> examples, BiConsumer<Double, Double> testSeries) {
         List<Double> expected = new ArrayList<>(examples.size());
         List<Double> netOuts = new ArrayList<>(examples.size());
         double inputChecker = Double.MAX_VALUE;
@@ -78,6 +81,7 @@ public class Main {
                     ));
             expected.add(example.expectedOutput.getEntry(0));
             netOuts.add(netOutput.getEntry(0));
+            testSeries.accept(example.input.getEntry(0), netOutput.getEntry(0));
         }
         //Plotter.buildGraphs(examples.size(), expected, netOuts);
         //createAndSaveChart(expected, netOuts);

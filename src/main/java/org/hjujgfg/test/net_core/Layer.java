@@ -71,6 +71,7 @@ public class Layer {
                     .add(deltasWeights.scalarMultiply(1./trainNumber))
                     .scalarMultiply(alpha)
                 );
+        //Utils.addNoiseToMatrix(weights);
         biases = biases.subtract(
                 deltasBiases.mapMultiply(1./trainNumber)
                     .mapMultiply(alpha)

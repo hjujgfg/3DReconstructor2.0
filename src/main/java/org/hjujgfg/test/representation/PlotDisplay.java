@@ -14,14 +14,14 @@ public class PlotDisplay {
      * this method should be invoked from the
      * event-dispatching thread.
      */
-    private static void createAndShowGUI(XYSeries truth, XYSeries netResult, Runnable chartStartedCallback) {
+    private static void createAndShowGUI(Runnable chartStartedCallback, XYSeries truth, XYSeries... series) {
         //Create and set up the window.
         JFrame frame = new JFrame("HelloWorldSwing");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(600, 400);
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setMinimumSize(new Dimension(600, 400));
-        JPanel panel = new PlotPanel(truth, netResult);
+        JPanel panel = new PlotPanel(truth, series);
         frame.addWindowListener(new WindowListener() {
             @Override
             public void windowOpened(WindowEvent e) {
@@ -66,11 +66,11 @@ public class PlotDisplay {
         frame.setVisible(true);
     }
 
-    public static void startViewInSeparateThread(XYSeries truth, XYSeries netResult, Runnable chartStartedCallback) {
+    public static void startViewInSeparateThread(Runnable chartStartedCallback, XYSeries truth, XYSeries... other) {
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(() -> {
-            createAndShowGUI(truth, netResult, chartStartedCallback);
+            createAndShowGUI(chartStartedCallback, truth, other);
         });
     }
 
