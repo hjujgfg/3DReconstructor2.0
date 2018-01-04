@@ -80,7 +80,7 @@ public class Network {
                 resUpdater.accept(example.input.getEntry(0), calculated.getEntry(0));
             }
             double weightsSum = calcWeightsSum();
-            double error =  1 / trainSet.size() * summError + lambda * 0.5 * weightsSum;
+            double error =  (1 / trainSet.size()) * summError + lambda * 0.5 * weightsSum;
             log.info(String.format("Epoch #%d: Error = %f, errorChange = %f, alpha = %f, lambda = %f, weightsSum = %f", i, error, error - prevError, alpha, lambda, weightsSum));
             if (error > prevError) {
                 //log.info("Shit happened, current error is higher that previous one, stopping without weights update");
@@ -113,5 +113,9 @@ public class Network {
             i++;
         }
         return sb.toString();
+    }
+
+    public RealVector getLayerOutputs(int layerNumber) {
+        return layers.get(layerNumber).outputs;
     }
 }

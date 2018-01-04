@@ -1,7 +1,7 @@
 package org.hjujgfg.test.net_core;
 
 import org.apache.commons.math3.linear.*;
-import org.hjujgfg.test.Utils;
+import org.hjujgfg.test.utils.Utils;
 
 public class Layer {
 
