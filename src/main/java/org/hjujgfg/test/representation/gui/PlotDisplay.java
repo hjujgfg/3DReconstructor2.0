@@ -1,4 +1,4 @@
-package org.hjujgfg.test.representation;
+package org.hjujgfg.test.representation.gui;
 
 import org.jfree.data.xy.XYSeries;
 

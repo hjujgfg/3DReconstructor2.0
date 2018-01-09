@@ -1,20 +1,14 @@
-package org.hjujgfg.test.representation;
+package org.hjujgfg.test.representation.gui;
 
 import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.event.ChartChangeEvent;
-import org.jfree.chart.event.ChartChangeEventType;
-import org.jfree.chart.event.ChartChangeListener;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Random;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class PlotPanel extends JPanel {
 

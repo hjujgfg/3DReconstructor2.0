@@ -6,7 +6,8 @@ import org.apache.log4j.Logger;
 import org.hjujgfg.exceptions.FileLoadingException;
 import org.hjujgfg.io.FileHelper;
 import org.hjujgfg.test.net_core.Network;
-import org.hjujgfg.test.representation.PlotDisplay;
+import org.hjujgfg.test.representation.gui.ImageDisplay;
+import org.hjujgfg.test.representation.gui.PlotDisplay;
 import org.hjujgfg.test.to.TrainingExample;
 import org.hjujgfg.test.utils.Utils;
 import org.jfree.chart.ChartFactory;
@@ -22,7 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -38,9 +38,10 @@ public class Main {
         doImageAutoencoderStuff(images);
 
 
-        /* - single input autoencoder
-        doAutoEncoderStuff();
-        */
+        /* - single input autoencoder */
+        //doAutoEncoderStuff();
+
+        //doNetStuffOnOneLengthVectors();
     }
 
 
@@ -53,9 +54,15 @@ public class Main {
                 .collect(Collectors.toList());
 
 
-        //Thread separateThreadForSomeReason = new Thread(() -> {
+        ImageDisplay display = new ImageDisplay();
+        Thread separateThreadForSomeReason = new Thread(() -> {
             net.train(10000, 0.003, 0.3, examplesSorted,
                     (d,v)->{}, (d,v)->{},
+                    (expected, calculated)->{
+                        BufferedImage expectedImg = realVectorToBufferedImage(expected);
+                        BufferedImage calculatedImg = realVectorToBufferedImage(calculated);
+                        display.getUpdater().accept(expectedImg, calculatedImg);
+                    },
                     () -> {}
             );
             List<RealVector> netTestResults = test(net, examplesSorted
@@ -68,7 +75,10 @@ public class Main {
             for (RealVector rv : netTestResults) {
                 fh.saveImage(realVectorToBufferedImage(rv), "output/digits/digit" + counter++ + ".png");
             }
-        //});
+        });
+
+        display.createViewAndStartInSeparateThread(separateThreadForSomeReason::start);
+
         //separateThreadForSomeReason.start();
 
     }
@@ -138,6 +148,7 @@ public class Main {
         Thread trainingThread = new Thread(() -> {
             net.train(30000, 0.0003, 0.3, examplesShuffled,
                     truth::addOrUpdate, netResult::addOrUpdate,
+                    (r,v)->{},
                     () -> {
                         log.info("Printing netResult series: ");
                         log.info(netResult.getItems().stream().map(Object::toString).collect(Collectors.joining(", ")));
@@ -153,7 +164,7 @@ public class Main {
 
     public static void doNetStuffOnOneLengthVectors() {
         Network net = new Network();
-        net.init(new String[] {"1", "10", "10", "1"});
+        net.init(new String[] {"1", "100", "1"});
         List<TrainingExample> examplesSorted = Utils.createNormalizedSinTrainingSet(180, 1);
         List<TrainingExample> examplesShuffled = Utils.createNormalizedSinTrainingSet(90, 2);
         Collections.shuffle(examplesShuffled);
@@ -163,8 +174,9 @@ public class Main {
         XYSeries testingResults = new XYSeries("Testing results", true, false);
 
         Thread trainingThread = new Thread(() -> {
-            net.train(15000, 0.00003, 0.3, examplesShuffled,
+            net.train(15000, 0.000003, 0.3, examplesShuffled,
                     truth::addOrUpdate, netResult::addOrUpdate,
+                    (r,v)->{},
                     () -> {
                         log.info("Printing netResult series: ");
                         log.info(netResult.getItems().stream().map(Object::toString).collect(Collectors.joining(", ")));

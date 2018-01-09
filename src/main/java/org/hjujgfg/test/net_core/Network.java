@@ -63,10 +63,14 @@ public class Network {
     public void train(int epochs, double alpha, double lambda, List<TrainingExample> trainSet,
                       BiConsumer<Double, Double> truthUpdater,
                       BiConsumer<Double, Double> resUpdater,
+                      BiConsumer<RealVector, RealVector> eachEpoch,
                       Runnable finalizer) {
         double prevError = Double.MAX_VALUE;
         for (int i = 0; i < epochs; i ++) {
             double summError = 0;
+            RealVector lastEntryExpected = null;
+            RealVector lastEntryNetResult = null;
+            int counter = 0;
             for (TrainingExample example : trainSet) {
                 RealVector calculated = run(example.input);
                 back(example.expectedOutput);
@@ -78,7 +82,12 @@ public class Network {
                     truthUpdater.accept(example.input.getEntry(0), example.expectedOutput.getEntry(0));
                 }
                 resUpdater.accept(example.input.getEntry(0), calculated.getEntry(0));
+                if (counter ++ == trainSet.size() - 1) {
+                    lastEntryExpected = example.expectedOutput;
+                    lastEntryNetResult = calculated;
+                }
             }
+            eachEpoch.accept(lastEntryExpected, lastEntryNetResult);
             double weightsSum = calcWeightsSum();
             double error =  (1 / trainSet.size()) * summError + lambda * 0.5 * weightsSum;
             log.info(String.format("Epoch #%d: Error = %f, errorChange = %f, alpha = %f, lambda = %f, weightsSum = %f", i, error, error - prevError, alpha, lambda, weightsSum));
