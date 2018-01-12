@@ -187,7 +187,7 @@ public class Utils {
     public static List<BufferedImage> loadDigitsImages(String prePath) {
         List<BufferedImage> images = new ArrayList<>();
         FileHelper fh = new FileHelper();
-        for (int i = 0; i < 100; i += 3) {
+        for (int i = 0; i < 100; i += 10) {
             try {
                 images.add(fh.loadImage(prePath + i + ".png"));
             } catch (FileLoadingException e) {

@@ -47,7 +47,7 @@ public class Main {
 
     public static void doImageAutoencoderStuff(List<BufferedImage> images) {
         Network net = new Network();
-        net.init(new String[] {"100", "64", "64", "100"});
+        net.init(new String[] {"100", "60", "50", "60", "100"});
         List<TrainingExample> examplesSorted = images.stream()
                 .map(Main::imageToRealVector)
                 .map(v -> new TrainingExample(v, v))
@@ -56,7 +56,7 @@ public class Main {
 
         ImageDisplay display = new ImageDisplay();
         Thread separateThreadForSomeReason = new Thread(() -> {
-            net.train(10000, 0.003, 0.3, examplesSorted,
+            net.train(10000, 0.0003, 0.3, examplesSorted,
                     (d,v)->{}, (d,v)->{},
                     (expected, calculated)->{
                         BufferedImage expectedImg = realVectorToBufferedImage(expected);

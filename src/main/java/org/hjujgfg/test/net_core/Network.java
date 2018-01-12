@@ -83,7 +83,7 @@ public class Network {
                 }
                 resUpdater.accept(example.input.getEntry(0), calculated.getEntry(0));
                 if (counter ++ == trainSet.size() - 1) {
-                    lastEntryExpected = example.expectedOutput;
+                    lastEntryExpected = example.input;
                     lastEntryNetResult = calculated;
                 }
             }
