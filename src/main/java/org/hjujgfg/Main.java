@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.hjujgfg.exceptions.FileLoadingException;
 import org.hjujgfg.imageprocessing.ImageProcessor;
 import org.hjujgfg.imageprocessing.convolve.Convolutor;
+import org.hjujgfg.imageprocessing.pool.Pooler;
 import org.hjujgfg.io.FileHelper;
 import org.hjujgfg.machinelearning.NeuralNetwork;
 
@@ -23,6 +24,7 @@ public class Main {
 
     private enum Commands {
         CONVOLVE("convolve", "convolves image with specified filter"),
+        POOL("pool", "performs pooling operation on the image"),
         GRAY("gray", "to grayscale"),
         NN("nn", "run neural network"),
         TEST_NN("testnn", "forward propagate specified vector, NN must be run first"),
@@ -86,6 +88,9 @@ public class Main {
         switch (command) {
             case CONVOLVE:
                 doConvolve(args);
+                break;
+            case POOL:
+                doPool(args);
                 break;
             case GRAY:
                 doGray(args);
@@ -276,6 +281,15 @@ public class Main {
         }
         try {
             convolutor.convolve(args[0], args[1], args[2], size);
+        } catch (Exception ex) {
+            log.error("Something terrible happened", ex);
+        }
+    }
+
+    private static void doPool(String... args) throws FileLoadingException {
+        Pooler pooler = new Pooler();
+        try {
+            pooler.pool(args[0], args[1], Integer.parseInt(args[2]));
         } catch (Exception ex) {
             log.error("Something terrible happened", ex);
         }
